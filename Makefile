@@ -36,9 +36,9 @@ production:
 	# Your Project ID here as argument in line! 
 	echo "Set PROJECT_ID=YOUR_PROJECT_ID if you have not !!!"
 	# Build for production for arm64 to make it work on GKE
-	docker buildx build --platform linux/amd64 -t gcr.io/$(PROJECT_ID)/tracker . 
-	docker push gcr.io/$(PROJECT_ID)/tracker
-	cd terraform; terraform apply;
+	docker buildx build --platform linux/amd64 -t gcr.io/$(PROJECT_ID)/lens-tracker . 
+	docker push gcr.io/$(PROJECT_ID)/lens-tracker
+	
 	
 
 
