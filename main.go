@@ -107,7 +107,7 @@ func main() {
 	logs1 := make(chan types.Log)
 	logs2 := make(chan types.Log)
 
-	if historic == true {
+	if historic {
 		historicQuery := ethereum.FilterQuery{
 			FromBlock: fromBlock,
 			ToBlock:   toBlock,
@@ -121,7 +121,14 @@ func main() {
 		} else {
 			fmt.Println("successfully connected to the RPC endpoint!")
 		}
-		clientH.FilterLogs(context.Background(), historicQuery)
+		historiclogs , err := clientH.FilterLogs(context.Background(), historicQuery)
+		if err != nil {
+			log.Fatal("Failed to get historic logs ", err)
+		} else {
+			fmt.Println("successfully got historic logs!")
+		}
+		for _, vLog := range historiclogs {
+			logs2 <- vLog
 	}
 
 	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs1)
