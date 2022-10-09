@@ -62,6 +62,10 @@ func main() {
 
 	dsn = dotenv.GetString("DATABASE_URL")
 	rpc := dotenv.GetString("RPC_URL")
+	historic := dotenv.GetBool("HISTORIC")
+	fromBlock := big.NewInt(int64(dotenv.GetInt("FROM_BLOCK")))
+	toBlock := big.NewInt(int64(dotenv.GetInt("TO_BLOCK")))
+	rpcHistoric := dotenv.GetString("RPC_HISTORIC")
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	//panic if we cannot connect to the database
@@ -102,6 +106,23 @@ func main() {
 
 	logs1 := make(chan types.Log)
 	logs2 := make(chan types.Log)
+
+	if historic == true {
+		historicQuery := ethereum.FilterQuery{
+			FromBlock: fromBlock,
+			ToBlock:   toBlock,
+			Addresses: []common.Address{contractAddress},
+			Topics:    [][]common.Hash{{common.HexToHash("0x7b4d1aa33773161799847429e4fbf29f56dbf1a3fe815f5070231cbfba402c37")}},
+		}
+
+		clientH, err := ethclient.Dial(rpcHistoric)
+		if err != nil {
+			log.Fatal("Failed to connect to the websocket of the Node (RPC) ", err)
+		} else {
+			fmt.Println("successfully connected to the RPC endpoint!")
+		}
+		clientH.FilterLogs(context.Background(), historicQuery)
+	}
 
 	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs1)
 	if err != nil {
